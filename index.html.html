@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>بازارینو | فروشگاه اینترنتی</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#fff;font-family:Tahoma,Arial,sans-serif}
+header{background:#181818;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #444}
+.logo{font-size:27px;color:#d4af37;font-weight:bold}
+button,input{font:inherit}
+button{cursor:pointer}
+.search{padding:12px;border-radius:8px;border:1px solid #555;background:#222;color:white;max-width:100%}
+.btn{background:#d4af37;color:#111;border:0;padding:12px 18px;border-radius:8px;font-weight:bold}
+nav{display:flex;gap:22px;padding:18px 5%;overflow:auto;white-space:nowrap}
+nav a{color:#ddd;text-decoration:none}
+.hero{margin:20px 5%;padding:45px 25px;border:1px solid #7d6526;border-radius:18px;background:linear-gradient(120deg,#392d13,#181818)}
+.hero h1{font-size:35px;line-height:1.8}
+.hero h1 span{color:#d4af37}
+.hero p{color:#ccc;line-height:2}
+h2{padding:0 5%;color:#d4af37}
+.categories{padding:0 5% 20px;display:flex;gap:10px;flex-wrap:wrap}
+.category{background:#252525;color:white;border:1px solid #555;padding:10px 15px;border-radius:25px}
+.category.active{background:#d4af37;color:#111}
+.products{padding:0 5% 40px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.card{background:#1b1b1b;border:1px solid #383838;border-radius:12px;overflow:hidden}
+.photo{height:145px;background:#29251c;display:grid;place-items:center;font-size:65px}
+.info{padding:13px}
+.info h3{font-size:14px;line-height:1.8;min-height:45px}
+.price{color:#e8cc68;font-weight:bold;line-height:2}
+.add{width:100%;padding:10px;background:#d4af37;border:0;border-radius:7px;margin-top:12px}
+#cart{position:fixed;inset:0;background:#000b;display:none;z-index:3}
+.panel{position:absolute;left:0;top:0;height:100%;width:min(400px,100%);overflow:auto;background:#191919;padding:20px}
+.cartitem{padding:12px 0;border-bottom:1px solid #444;line-height:2}
+footer{padding:30px 5%;border-top:1px solid #444;color:#aaa;line-height:2}
+@media(max-width:800px){.products{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:27px}}
+@media(max-width:400px){.products{gap:8px}.photo{height:110px;font-size:50px}.info{padding:9px}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">بازارینو ✦</div>
+<input class="search" id="search" placeholder="جست‌وجوی محصول..." oninput="render()">
+<button class="btn" onclick="openCart()">🛒 سبد خرید (<span id="count">۰</span>)</button>
+</header>
+
+<nav>
+<a href="#" onclick="category='همه';render();return false">صفحه اصلی</a>
+<a href="#products" onclick="setCat('دیجیتال')">دیجیتال</a>
+<a href="#products" onclick="setCat('پوشاک')">پوشاک</a>
+<a href="#products" onclick="setCat('خانه')">خانه و زندگی</a>
+<a href="#products" onclick="setCat('اکسسوری')">اکسسوری</a>
+</nav>
+
+<section class="hero">
+<p>BAZARINO · PREMIUM COLLECTION</p>
+<h1>انتخاب خاص تو،<br><span>سبک زندگی توست.</span></h1>
+<p>محصولات منتخب با طراحی زیبا و قیمت مناسب</p>
+<button class="btn" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">مشاهده محصولات</button>
+</section>
+
+<h2 id="products">ویترین بازارینو</h2>
+<div class="categories">
+<button class="category active" onclick="setCat('همه')">همه محصولات</button>
+<button class="category" onclick="setCat('دیجیتال')">دیجیتال</button>
+<button class="category" onclick="setCat('پوشاک')">پوشاک</button>
+<button class="category" onclick="setCat('خانه')">خانه و زندگی</button>
+<button class="category" onclick="setCat('اکسسوری')">اکسسوری</button>
+</div>
+<div class="products" id="list"></div>
+
+<footer>
+<h3 style="color:#d4af37">بازارینو</h3>
+<p>فروشگاه اینترنتی با طراحی لوکس مشکی و طلایی</p>
+<p>این نسخه نمایشی است و پرداخت واقعی ندارد.</p>
+</footer>
+
+<div id="cart" onclick="if(event.target===this)closeCart()">
+<div class="panel">
+<button class="btn" onclick="closeCart()">بستن ✕</button>
+<h2>سبد خرید</h2>
+<div id="items"></div>
+<h3 id="total">مجموع: ۰ تومان</h3>
+<button class="btn" onclick="checkout()">ثبت سفارش آزمایشی</button>
+</div>
+</div>
+
+<script>
+const products=[
+{id:1,n:'هدفون بی‌سیم',c:'دیجیتال',p:2850000,e:'🎧'},
+{id:2,n:'ساعت مچی کلاسیک',c:'اکسسوری',p:4750000,e:'⌚'},
+{id:3,n:'عینک آفتابی',c:'اکسسوری',p:1250000,e:'🕶️'},
+{id:4,n:'کیف دستی',c:'پوشاک',p:1980000,e:'👜'},
+{id:5,n:'اسپیکر بلوتوثی',c:'دیجیتال',p:1650000,e:'🔊'},
+{id:6,n:'چراغ دکوراتیو',c:'خانه',p:980000,e:'💡'},
+{id:7,n:'کتانی روزمره',c:'پوشاک',p:2450000,e:'👟'},
+{id:8,n:'ماگ سرامیکی',c:'خانه',p:390000,e:'☕'},
+{id:9,n:'دوربین دیجیتال',c:'دیجیتال',p:12800000,e:'📷'},
+{id:10,n:'عطر لوکس',c:'اکسسوری',p:3200000,e:'🧴'},
+{id:11,n:'کیف پول',c:'پوشاک',p:850000,e:'👛'},
+{id:12,n:'گلدان تزئینی',c:'خانه',p:620000,e:'🏺'}
+];
+let category='همه',cart={};
+const money=n=>new Intl.NumberFormat('fa-IR').format(n)+' تومان';
+function render(){
+const q=document.getElementById('search').value.trim().toLowerCase();
+const arr=products.filter(p=>(category==='همه'||p.c===category)&&(p.n.toLowerCase().includes(q)||p.c.toLowerCase().includes(q)));
+document.getElementById('list').innerHTML=arr.map(p=>`
+<div class="card">
+<div class="photo">${p.e}</div>
+<div class="info"><h3>${p.n}</h3>
+<div class="price">${money(p.p)}</div>
+<button class="add" onclick="add(${p.id})">افزودن به سبد خرید</button>
+</div></div>`).join('')||'<p>محصولی پیدا نشد.</p>';
+document.querySelectorAll('.category').forEach(b=>b.classList.toggle('active',b.textContent.includes(category==='همه'?'همه محصولات':category)));
+}
+function setCat(c){category=c;render()}
+function add(id){cart[id]=(cart[id]||0)+1;renderCart()}
+function change(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];renderCart()}
+function renderCart(){
+document.getElementById('count').textContent=new Intl.NumberFormat('fa-IR').format(Object.values(cart).reduce((a,b)=>a+b,0));
+document.getElementById('items').innerHTML=Object.entries(cart).map(([id,q])=>{let p=products.find(x=>x.id===+id);return `<div class="cartitem">${p.e} ${p.n}<br>${money(p.p)}<br><button onclick="change(${id},-1)">−</button> ${q} <button onclick="change(${id},1)">+</button></div>`}).join('')||'<p>سبد خرید خالی است.</p>';
+document.getElementById('total').textContent='مجموع: '+money(Object.entries(cart).reduce((s,[id,q])=>s+products.find(p=>p.id===+id).p*q,0));
+}
+function openCart(){document.getElementById('cart').style.display='block'}
+function closeCart(){document.getElementById('cart').style.display='none'}
+function checkout(){if(!Object.keys(cart).length){alert('سبد خرید خالی است');return}alert('این سفارش آزمایشی است؛ پرداخت واقعی فعال نیست.');cart={};renderCart();closeCart()}
+render();renderCart();
+</script>
+</body>
+</html>
